@@ -64,3 +64,22 @@ SELECT
     END AS staffing_indicator
 FROM HourlyVolume
 ORDER BY volume DESC;
+
+-- The "Bed Gap" Analysis
+WITH BedUsage AS (
+    SELECT 
+        a.department_id,
+        dis.discharge_date,
+        LEAD(a.admission_date) OVER (PARTITION BY a.department_id ORDER BY a.admission_date) AS next_admission_date
+    FROM admissions a
+    JOIN discharges dis ON a.admission_id = dis.admission_id
+)
+SELECT 
+    d.department_name,
+    AVG(DATEDIFF(next_admission_date, discharge_date)) AS avg_empty_bed_days
+FROM BedUsage bu
+JOIN departments d ON bu.department_id = d.department_id
+WHERE next_admission_date IS NOT NULL
+GROUP BY d.department_name
+HAVING avg_empty_bed_days >= 0 -- Filters out overlapping data errors
+ORDER BY avg_empty_bed_days ASC;
