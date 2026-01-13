@@ -12,3 +12,4 @@ This project uses **MySQL** to process patient stay data and **Power BI** to vis
 - Peak Admission Period Analysis
 - Bed Capacity Gap Analysis
 
+
